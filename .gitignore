@@ -1,0 +1,7 @@
+.claude/
+__pycache__/
+*.pyc
+.DS_Store
+build.py
+fetch_data.py
+live_server.py

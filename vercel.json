@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/live-scenario", "destination": "/api/live-scenario" },
+    { "source": "/api/popular-stocks", "destination": "/api/popular-stocks" },
+    { "source": "/api/search", "destination": "/api/search" }
+  ]
+}
