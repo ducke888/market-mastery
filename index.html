@@ -653,9 +653,9 @@ background-size:60px 60px}
 .admin-del-btn:hover{background:rgba(239,83,80,0.2);border-color:var(--red)}
 .admin-del-btn.deleted{border-color:var(--border);color:var(--text3);background:transparent;cursor:default;opacity:0.5}
 .admin-stats{font-size:12px;color:var(--text3);margin-top:10px;text-align:right;flex-shrink:0}
-/* hidden trigger */
-.admin-trigger{font-size:11px;color:transparent;cursor:default;user-select:none;margin-top:8px;text-align:center;transition:color 0.3s}
-.admin-trigger:hover{color:rgba(239,83,80,0.3);cursor:pointer}
+/* admin trigger */
+.admin-trigger{font-size:11px;color:var(--text3);cursor:pointer;user-select:none;margin-top:16px;text-align:center;opacity:0.4;transition:opacity 0.2s;display:inline-flex;align-items:center;gap:5px;font-family:'Inter',sans-serif}
+.admin-trigger:hover{opacity:1}
 
 /* ======== RESPONSIVE ======== */
 @media(max-width:640px){
@@ -2459,19 +2459,34 @@ function LeaderboardScreen({onPlay}) {
     return getLeaderboard();
   },[user, stats?.totalScenarios]);
 
-  // Fetch global leaderboard from Firebase on mount
+  // Fetch global leaderboard from Firebase on mount + sync any local-only entries up
   useEffect(()=>{
     if(firebaseReady) {
       setLoadingGlobal(true);
+
+      // First push any localStorage entries that aren't in Firebase yet
+      const localEntries = JSON.parse(localStorage.getItem('mm_leaderboard') || '[]');
+      if(localEntries.length > 0) {
+        const batch = db.batch();
+        localEntries.forEach(entry => {
+          if(entry.uid) {
+            const ref = db.collection('leaderboard').doc(entry.uid);
+            batch.set(ref, entry, {merge: true});
+          }
+        });
+        batch.commit().catch(e => console.warn('Sync to Firebase failed:', e));
+      }
+
+      // Then fetch
       fetchGlobalLeaderboard().then(data=>{
-        if(data && data.length > 0) setGlobalData(data);
+        if(data !== null) setGlobalData(data);  // show GLOBAL even if empty
         setLoadingGlobal(false);
       });
     }
   },[]);
 
-  const leaderboard = globalData || localLb;
-  const isGlobal = !!globalData;
+  const leaderboard = (globalData !== null ? globalData : null) || localLb;
+  const isGlobal = globalData !== null;  // true as soon as Firebase responds (even if empty)
 
   const sorted = useMemo(()=>{
     let lb = [...(leaderboard||[])];
@@ -2590,9 +2605,11 @@ function LeaderboardScreen({onPlay}) {
       {/* Friend Leaderboard */}
       <FriendLeaderboard user={user} globalData={globalData} localLb={localLb}/>
 
-      {/* Hidden admin trigger — hover to reveal, click to open */}
-      <div className="admin-trigger" onClick={()=>setShowAdmin(true)} title="">
-        Admin
+      {/* Admin trigger */}
+      <div style={{textAlign:'center',marginTop:8}}>
+        <span className="admin-trigger" onClick={()=>setShowAdmin(true)}>
+          {'\uD83D\uDD10'} Admin Panel
+        </span>
       </div>
 
       {/* Admin password gate */}
