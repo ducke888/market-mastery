@@ -9,6 +9,9 @@
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -606,6 +609,34 @@ const REAL_DATA = [{"id":1,"ticker":"AAPL","label":"AAPL Jan 2023","candles":[{"
 const DISPLAY_CANDLES = 120;
 </script>
 
+<script>
+// ======== FIREBASE INIT ========
+// Replace these with YOUR Firebase project config (see setup instructions)
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCuHLqJEcKfshFjW73VgkqkRKO9UPxnu9U",
+  authDomain: "market-mastery-4022a.firebaseapp.com",
+  projectId: "market-mastery-4022a",
+  storageBucket: "market-mastery-4022a.firebasestorage.app",
+  messagingSenderId: "970969419640",
+  appId: "1:970969419640:web:00a9ea485c758c051cc28d"
+};
+
+let db = null;
+let firebaseReady = false;
+try {
+  if(FIREBASE_CONFIG.projectId !== "YOUR_PROJECT_ID" && typeof firebase !== 'undefined') {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    firebaseReady = true;
+    console.log("Firebase connected — global leaderboard active");
+  } else {
+    console.log("Firebase not configured — using local leaderboard. See setup instructions.");
+  }
+} catch(e) {
+  console.log("Firebase init failed, using local leaderboard:", e.message);
+}
+</script>
+
 <script type="text/babel">
 const {useState,useMemo,useEffect,useCallback,useRef,createContext,useContext} = React;
 
@@ -765,15 +796,13 @@ function getBadgeProgress(userId) {
   return progress;
 }
 
-/* ======== LEADERBOARD ======== */
+/* ======== LEADERBOARD (Firebase + localStorage fallback) ======== */
 function getLeaderboard() {
-  // Aggregate all local users' stats (in a real app this would be server-side)
-  // For now we gather stats from the current user and any stored leaderboard entries
   const lb = JSON.parse(localStorage.getItem('mm_leaderboard') || '[]');
   return lb.sort((a, b) => b.score - a.score);
 }
 
-function updateLeaderboard(userId, name, stats) {
+function updateLeaderboard(userId, name, stats, liveStats) {
   const lb = JSON.parse(localStorage.getItem('mm_leaderboard') || '[]');
   const existing = lb.findIndex(e => e.uid === userId);
   const entry = {
@@ -783,12 +812,34 @@ function updateLeaderboard(userId, name, stats) {
     accuracy: stats.totalScenarios > 0 ? Math.round(stats.totalCorrect / stats.totalScenarios * 100) : 0,
     scenarios: stats.totalScenarios,
     bestScore: stats.bestScore,
+    livePlayed: liveStats ? liveStats.played : 0,
+    liveAccuracy: liveStats && liveStats.played > 0 ? Math.round(liveStats.correct / liveStats.played * 100) : 0,
+    liveBestStreak: liveStats ? (liveStats.bestStreak || 0) : 0,
     lastPlayed: new Date().toISOString(),
   };
   if(existing >= 0) lb[existing] = entry;
   else lb.push(entry);
   localStorage.setItem('mm_leaderboard', JSON.stringify(lb));
+
+  // Sync to Firebase if available
+  if(firebaseReady && db) {
+    db.collection('leaderboard').doc(userId).set(entry, {merge: true}).catch(e=>console.warn('Firebase write failed:', e));
+  }
   return lb.sort((a, b) => b.score - a.score);
+}
+
+// Fetch global leaderboard from Firebase (async)
+async function fetchGlobalLeaderboard() {
+  if(!firebaseReady || !db) return null;
+  try {
+    const snap = await db.collection('leaderboard').orderBy('score','desc').limit(100).get();
+    const entries = [];
+    snap.forEach(doc => entries.push(doc.data()));
+    return entries;
+  } catch(e) {
+    console.warn('Firebase read failed:', e);
+    return null;
+  }
 }
 
 /* ======== INDICATOR MATH ======== */
@@ -1688,6 +1739,12 @@ function LiveChallengeScreen() {
       newStats.streak = 0;
     }
     saveStats(newStats);
+
+    // Update global leaderboard with live stats
+    if(user) {
+      const gameStats = getAllStats(user.uid);
+      updateLeaderboard(user.uid, user.name, gameStats, newStats);
+    }
   };
 
   const handleNewChallenge = () => {
@@ -2122,19 +2179,43 @@ function LeaderboardScreen({onPlay}) {
   const {user} = useAuth();
   const stats = user ? getAllStats(user.uid) : null;
   const [lbTab, setLbTab] = useState('score');
+  const [lbMode, setLbMode] = useState('all'); // all, practice, live
+  const [globalData, setGlobalData] = useState(null);
+  const [loadingGlobal, setLoadingGlobal] = useState(false);
 
-  const leaderboard = useMemo(()=>{
+  // Update local leaderboard with current user stats
+  const localLb = useMemo(()=>{
     if(user && stats && stats.totalScenarios > 0) {
-      return updateLeaderboard(user.uid, user.name, stats);
+      let liveStats = null;
+      try { liveStats = JSON.parse(localStorage.getItem(`mm_live_stats_${user.uid}`)); } catch(e){}
+      return updateLeaderboard(user.uid, user.name, stats, liveStats);
     }
     return getLeaderboard();
   },[user, stats?.totalScenarios]);
 
+  // Fetch global leaderboard from Firebase on mount
+  useEffect(()=>{
+    if(firebaseReady) {
+      setLoadingGlobal(true);
+      fetchGlobalLeaderboard().then(data=>{
+        if(data && data.length > 0) setGlobalData(data);
+        setLoadingGlobal(false);
+      });
+    }
+  },[]);
+
+  const leaderboard = globalData || localLb;
+  const isGlobal = !!globalData;
+
   const sorted = useMemo(()=>{
-    const lb = [...(leaderboard||[])];
-    if(lbTab==='score') return lb.sort((a,b)=>b.score-a.score);
-    if(lbTab==='accuracy') return lb.sort((a,b)=>b.accuracy-a.accuracy);
-    if(lbTab==='scenarios') return lb.sort((a,b)=>b.scenarios-a.scenarios);
+    let lb = [...(leaderboard||[])];
+    // Sort by selected column
+    if(lbTab==='score') lb.sort((a,b)=>b.score-a.score);
+    else if(lbTab==='accuracy') lb.sort((a,b)=>b.accuracy-a.accuracy);
+    else if(lbTab==='scenarios') lb.sort((a,b)=>b.scenarios-a.scenarios);
+    else if(lbTab==='live') lb.sort((a,b)=>(b.livePlayed||0)-(a.livePlayed||0));
+    else if(lbTab==='liveAcc') lb.sort((a,b)=>(b.liveAccuracy||0)-(a.liveAccuracy||0));
+    else if(lbTab==='streak') lb.sort((a,b)=>(b.liveBestStreak||0)-(a.liveBestStreak||0));
     return lb;
   },[leaderboard, lbTab]);
 
@@ -2143,30 +2224,50 @@ function LeaderboardScreen({onPlay}) {
 
   return (
     <div className="stats-screen"><div className="stats-content">
-      <h1 className="stats-title" style={{animation:'fadeInUp 0.5s ease both'}}>Leaderboard</h1>
-      <p className="stats-sub" style={{animation:'fadeInUp 0.5s ease 0.1s both'}}>Compete for the top spot. Rankings update after every scenario.</p>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12,marginBottom:8}}>
+        <h1 className="stats-title" style={{animation:'fadeInUp 0.5s ease both',marginBottom:0}}>Leaderboard</h1>
+        <div style={{display:'flex',alignItems:'center',gap:8,animation:'fadeInUp 0.5s ease 0.1s both'}}>
+          {isGlobal && <span style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:11,fontWeight:700,color:'var(--green)',border:'1px solid rgba(38,166,154,0.3)',borderRadius:100,padding:'4px 12px',background:'rgba(38,166,154,0.08)'}}><span style={{width:6,height:6,borderRadius:'50%',background:'var(--green)',animation:'pulse 1.5s ease infinite'}}/>GLOBAL</span>}
+          {!isGlobal && <span style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:11,fontWeight:700,color:'var(--orange)',border:'1px solid rgba(255,152,0,0.3)',borderRadius:100,padding:'4px 12px',background:'rgba(255,152,0,0.08)'}}>LOCAL</span>}
+        </div>
+      </div>
+      <p className="stats-sub" style={{animation:'fadeInUp 0.5s ease 0.1s both'}}>{isGlobal ? 'Competing against players worldwide. Rankings update in real-time.' : 'Connect Firebase to compete globally. Local rankings shown.'}</p>
 
       {/* Your rank highlight */}
       {myEntry && (
-        <div className="lb-your-rank" style={{display:'flex',alignItems:'center',gap:20,padding:'20px 24px',background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:'var(--radius)',marginBottom:24,animation:'fadeInUp 0.5s ease 0.15s both',flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:20,padding:'20px 24px',background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:'var(--radius)',marginBottom:24,animation:'fadeInUp 0.5s ease 0.15s both',flexWrap:'wrap'}}>
           <div style={{display:'flex',flexDirection:'column',alignItems:'center',minWidth:60}}>
             <span style={{fontSize:36,fontWeight:900,fontFamily:"'JetBrains Mono',monospace",color:myRank===1?'#ffd700':myRank===2?'#c0c0c0':myRank===3?'#cd7f32':'var(--green)'}}>#{myRank}</span>
             <span style={{fontSize:11,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.06em'}}>Your Rank</span>
           </div>
-          <div style={{flex:1,display:'flex',gap:24,flexWrap:'wrap'}}>
+          <div style={{flex:1,display:'flex',gap:20,flexWrap:'wrap'}}>
             <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}><span style={{fontSize:22,fontWeight:800,fontFamily:"'JetBrains Mono',monospace",color:'var(--accent)'}}>{myEntry.score}</span><span style={{fontSize:11,color:'var(--text3)'}}>Score</span></div>
             <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}><span style={{fontSize:22,fontWeight:800,fontFamily:"'JetBrains Mono',monospace",color:'var(--green)'}}>{myEntry.accuracy}%</span><span style={{fontSize:11,color:'var(--text3)'}}>Accuracy</span></div>
             <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}><span style={{fontSize:22,fontWeight:800,fontFamily:"'JetBrains Mono',monospace",color:'var(--purple)'}}>{myEntry.scenarios}</span><span style={{fontSize:11,color:'var(--text3)'}}>Scenarios</span></div>
+            <div style={{width:1,background:'var(--border)',alignSelf:'stretch',margin:'0 4px'}}/>
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}><span style={{fontSize:22,fontWeight:800,fontFamily:"'JetBrains Mono',monospace",color:'var(--orange)'}}>{myEntry.livePlayed||0}</span><span style={{fontSize:11,color:'var(--text3)'}}>Live Plays</span></div>
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}><span style={{fontSize:22,fontWeight:800,fontFamily:"'JetBrains Mono',monospace",color:'#ef5350'}}>{myEntry.liveAccuracy||0}%</span><span style={{fontSize:11,color:'var(--text3)'}}>Live Acc</span></div>
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}><span style={{fontSize:22,fontWeight:800,fontFamily:"'JetBrains Mono',monospace",color:'#26c6da'}}>{myEntry.liveBestStreak||0}</span><span style={{fontSize:11,color:'var(--text3)'}}>Best Streak</span></div>
           </div>
+        </div>
+      )}
+
+      {/* Loading indicator */}
+      {loadingGlobal && (
+        <div style={{textAlign:'center',padding:16,fontSize:13,color:'var(--text3)'}}>
+          <div style={{width:24,height:24,border:'2px solid var(--border)',borderTopColor:'var(--accent)',borderRadius:'50%',animation:'spin 0.8s linear infinite',margin:'0 auto 8px'}}/>
+          Loading global leaderboard...
         </div>
       )}
 
       {/* Sort tabs */}
       <div className="leaderboard-section" style={{animation:'fadeInUp 0.5s ease 0.2s both'}}>
-        <div className="lb-tabs">
-          {[['score','By Score'],['accuracy','By Accuracy'],['scenarios','By Scenarios']].map(([id,label])=>(
-            <button key={id} className={`lb-tab${lbTab===id?' active':''}`} onClick={()=>setLbTab(id)}>{label}</button>
-          ))}
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8,marginBottom:16}}>
+          <div className="lb-tabs" style={{marginBottom:0}}>
+            {[['score','Score'],['accuracy','Accuracy'],['scenarios','Scenarios'],['live','Live Plays'],['liveAcc','Live Acc'],['streak','Streak']].map(([id,label])=>(
+              <button key={id} className={`lb-tab${lbTab===id?' active':''}`} onClick={()=>setLbTab(id)}>{label}</button>
+            ))}
+          </div>
         </div>
         {sorted.length === 0 ? (
           <div className="lb-empty">
@@ -2180,26 +2281,26 @@ function LeaderboardScreen({onPlay}) {
             <thead><tr>
               <th>#</th>
               <th>Player</th>
-              <th>{lbTab==='accuracy'?'Accuracy':lbTab==='scenarios'?'Scenarios':'Score'}</th>
-              <th>Details</th>
+              <th>Practice</th>
+              <th>Live</th>
               <th>Last Active</th>
             </tr></thead>
             <tbody>
               {sorted.slice(0,50).map((entry,i)=>(
-                <tr key={entry.uid} style={entry.uid===user?.uid?{background:'rgba(38,166,154,0.06)'}:{}}>
+                <tr key={entry.uid||i} style={entry.uid===user?.uid?{background:'rgba(38,166,154,0.06)'}:{}}>
                   <td className={`lb-rank${i===0?' gold':i===1?' silver':i===2?' bronze':''}`}>
                     {i===0?'\u{1F947}':i===1?'\u{1F948}':i===2?'\u{1F949}':i+1}
                   </td>
                   <td className={entry.uid===user?.uid?'lb-you':'lb-name'}>
                     {entry.name}{entry.uid===user?.uid?' (You)':''}
                   </td>
-                  <td className="lb-score">
-                    {lbTab==='accuracy'?entry.accuracy+'%':lbTab==='scenarios'?entry.scenarios:entry.score}
+                  <td style={{fontSize:12}}>
+                    <span style={{fontWeight:700,color:'var(--accent)',fontFamily:"'JetBrains Mono',monospace"}}>{entry.score}</span>
+                    <span style={{color:'var(--text3)'}}> pts · {entry.accuracy}% · {entry.scenarios} sc</span>
                   </td>
-                  <td className="lb-acc">
-                    {lbTab==='score'?entry.accuracy+'% acc \u00B7 '+entry.scenarios+' scenarios':
-                     lbTab==='accuracy'?entry.score+' pts \u00B7 '+entry.scenarios+' scenarios':
-                     entry.score+' pts \u00B7 '+entry.accuracy+'% acc'}
+                  <td style={{fontSize:12}}>
+                    <span style={{fontWeight:700,color:'var(--orange)',fontFamily:"'JetBrains Mono',monospace"}}>{entry.livePlayed||0}</span>
+                    <span style={{color:'var(--text3)'}}> plays · {entry.liveAccuracy||0}% · {entry.liveBestStreak||0} streak</span>
                   </td>
                   <td style={{fontSize:12,color:'var(--text3)'}}>
                     {entry.lastPlayed ? new Date(entry.lastPlayed).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '-'}
@@ -2211,10 +2312,13 @@ function LeaderboardScreen({onPlay}) {
         )}
       </div>
 
-      {/* Share link note */}
-      <div style={{padding:'16px 20px',background:'rgba(59,130,246,0.06)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:'var(--radius)',fontSize:13,color:'var(--text2)',marginTop:8,animation:'fadeInUp 0.5s ease 0.3s both',display:'flex',alignItems:'flex-start',gap:10}}>
-        <span style={{fontSize:16,flexShrink:0}}>*</span>
-        <span>Leaderboard is currently local to this browser. Once published with a database backend, rankings will be global across all players worldwide.</span>
+      {/* Firebase status note */}
+      <div style={{padding:'16px 20px',background:isGlobal?'rgba(38,166,154,0.06)':'rgba(255,152,0,0.06)',border:`1px solid ${isGlobal?'rgba(38,166,154,0.2)':'rgba(255,152,0,0.2)'}`,borderRadius:'var(--radius)',fontSize:13,color:'var(--text2)',marginTop:8,animation:'fadeInUp 0.5s ease 0.3s both',display:'flex',alignItems:'flex-start',gap:10}}>
+        <span style={{fontSize:16,flexShrink:0}}>{isGlobal?'\u{2705}':'\u{1F4A1}'}</span>
+        <span>{isGlobal
+          ? 'Connected to global leaderboard. Your scores are synced worldwide in real-time!'
+          : 'Leaderboard is local to this browser. To enable global rankings, set up Firebase (free) and add your config to the site.'
+        }</span>
       </div>
     </div></div>
   );
@@ -2382,7 +2486,9 @@ function AppInner() {
       });
       // Update leaderboard
       const latestStats = getAllStats(user.uid);
-      updateLeaderboard(user.uid, user.name, latestStats);
+      let liveStats = null;
+      try { liveStats = JSON.parse(localStorage.getItem(`mm_live_stats_${user.uid}`)); } catch(e){}
+      updateLeaderboard(user.uid, user.name, latestStats, liveStats);
     }
   },[idx, user, filteredScenarios]);
 
