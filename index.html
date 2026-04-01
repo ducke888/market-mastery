@@ -2400,7 +2400,7 @@ function StatsScreen({onPlay}) {
       </div>
 
       {stats.totalScenarios > 0 && (
-        <button onClick={()=>{if(confirm('Clear all your statistics and scenario progress? This cannot be undone.')){localStorage.removeItem('mm_sessions_'+user.uid);localStorage.removeItem('mm_results_'+user.uid);localStorage.removeItem('mm_badges_'+user.uid);location.reload();}}} style={{padding:'10px 20px',borderRadius:8,border:'1px solid rgba(239,83,80,0.3)',background:'rgba(239,83,80,0.08)',color:'var(--red)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif',transition:'all 0.2s',marginTop:16}}>Clear All Statistics</button>
+        <button onClick={()=>{if(confirm('Clear all your statistics and scenario progress? This will also remove you from the leaderboard. This cannot be undone.')){localStorage.removeItem('mm_sessions_'+user.uid);localStorage.removeItem('mm_results_'+user.uid);localStorage.removeItem('mm_badges_'+user.uid);localStorage.removeItem('mm_live_stats_'+user.uid);const lb=JSON.parse(localStorage.getItem('mm_leaderboard')||'[]').filter(e=>e.uid!==user.uid);localStorage.setItem('mm_leaderboard',JSON.stringify(lb));if(firebaseReady&&db){db.collection('leaderboard').doc(user.uid).delete().catch(e=>console.warn('Firebase delete failed:',e));}location.reload();}}} style={{padding:'10px 20px',borderRadius:8,border:'1px solid rgba(239,83,80,0.3)',background:'rgba(239,83,80,0.08)',color:'var(--red)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif',transition:'all 0.2s',marginTop:16}}>Clear All Statistics</button>
       )}
 
       <div className="settings-section">
