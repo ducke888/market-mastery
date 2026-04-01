@@ -2353,9 +2353,15 @@ function AdminPanel({onClose, globalData, localLb, onDeleted}) {
       if(firebaseReady && db) {
         await db.collection('leaderboard').doc(entry.uid).delete();
       }
-      // Remove from localStorage
+      // Remove from localStorage leaderboard array
       const lb = JSON.parse(localStorage.getItem('mm_leaderboard')||'[]').filter(e=>e.uid!==entry.uid);
       localStorage.setItem('mm_leaderboard', JSON.stringify(lb));
+      // Add to permanent admin blocklist so sync never re-adds this entry
+      const blocked = JSON.parse(localStorage.getItem('mm_lb_blocked')||'[]');
+      if(!blocked.includes(entry.uid)) {
+        blocked.push(entry.uid);
+        localStorage.setItem('mm_lb_blocked', JSON.stringify(blocked));
+      }
       setDeleted(s=>new Set([...s, entry.uid]));
       setMsg(`Deleted "${entry.name}" from leaderboard.`);
       setTimeout(()=>setMsg(''), 3000);
@@ -2464,8 +2470,19 @@ function LeaderboardScreen({onPlay}) {
     if(firebaseReady) {
       setLoadingGlobal(true);
 
-      // First push any localStorage entries that aren't in Firebase yet
-      const localEntries = JSON.parse(localStorage.getItem('mm_leaderboard') || '[]');
+      // Get admin blocklist (UIDs permanently deleted by admin)
+      const blocked = new Set(JSON.parse(localStorage.getItem('mm_lb_blocked') || '[]'));
+      // Clean any blocked entries out of localStorage leaderboard
+      if(blocked.size > 0) {
+        const cleaned = JSON.parse(localStorage.getItem('mm_leaderboard') || '[]').filter(e => !blocked.has(e.uid));
+        localStorage.setItem('mm_leaderboard', JSON.stringify(cleaned));
+        // Also delete from Firebase (in case they got re-added)
+        blocked.forEach(uid => {
+          db.collection('leaderboard').doc(uid).delete().catch(()=>{});
+        });
+      }
+      // Push remaining local entries that aren't in Firebase yet (skip blocked)
+      const localEntries = JSON.parse(localStorage.getItem('mm_leaderboard') || '[]').filter(e => !blocked.has(e.uid));
       if(localEntries.length > 0) {
         const batch = db.batch();
         localEntries.forEach(entry => {
