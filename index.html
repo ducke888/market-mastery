@@ -588,6 +588,75 @@ background-size:60px 60px}
 .market-status.open .market-status-dot{background:var(--green);animation:pulse 1.5s ease infinite}
 .market-status.closed .market-status-dot{background:var(--orange)}
 
+/* ======== BADGE NOTIFICATION TOAST ======== */
+.badge-toast{position:fixed;top:72px;right:24px;z-index:300;background:var(--bg2);border:1px solid rgba(38,166,154,0.5);border-radius:16px;padding:16px 20px 16px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(38,166,154,0.15);max-width:320px;animation:toastSlideIn 0.5s cubic-bezier(0.22,1,0.36,1) both}
+.badge-toast.exit{animation:toastSlideOut 0.4s ease forwards}
+@keyframes toastSlideIn{from{opacity:0;transform:translateX(140%)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastSlideOut{to{opacity:0;transform:translateX(140%)}}
+.badge-toast-icon{font-size:38px;flex-shrink:0;animation:badgeBounce 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both}
+@keyframes badgeBounce{0%{transform:scale(0) rotate(-30deg)}65%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1) rotate(0deg)}}
+.badge-toast-text{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.badge-toast-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:1px}
+.badge-toast-name{font-size:15px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge-toast-desc{font-size:12px;color:var(--text2);line-height:1.4}
+.badge-toast-close{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;font-family:'Inter',sans-serif;line-height:1;padding:2px;align-self:flex-start;flex-shrink:0;transition:color 0.2s}.badge-toast-close:hover{color:var(--text)}
+/* ======== SOUND TOGGLE ======== */
+.sound-toggle{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg3);cursor:pointer;font-size:12px;font-weight:600;color:var(--text3);transition:all 0.2s;font-family:'Inter',sans-serif;user-select:none}
+.sound-toggle:hover{border-color:var(--border2);color:var(--text)}
+.sound-toggle.on{border-color:rgba(38,166,154,0.35);color:var(--green);background:rgba(38,166,154,0.08)}
+/* ======== DIFFICULTY MULTIPLIER BADGE ======== */
+.diff-mult-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.08);color:var(--accent);margin-left:8px}
+/* ======== FRIEND LEADERBOARD ======== */
+.friend-section{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;animation:fadeInUp 0.4s ease both}
+.friend-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.friend-code-display{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;letter-spacing:0.22em;color:var(--green);background:rgba(38,166,154,0.08);border:1px solid rgba(38,166,154,0.28);border-radius:10px;padding:10px 20px;display:inline-block}
+.friend-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.friend-copy-btn,.friend-gen-btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;border:1px solid var(--border2);background:var(--bg4);color:var(--text)}
+.friend-copy-btn:hover{border-color:rgba(38,166,154,0.5);color:var(--green)}
+.friend-gen-btn:hover{border-color:rgba(59,130,246,0.5);color:var(--accent)}
+.friend-join-row{display:flex;gap:8px;margin-top:12px}
+.friend-join-input{flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg4);color:var(--text);font-size:14px;font-family:'JetBrains Mono',monospace;letter-spacing:0.14em;text-transform:uppercase;outline:none;transition:border-color 0.2s;min-width:0}
+.friend-join-input:focus{border-color:var(--accent)}
+.friend-join-input::placeholder{text-transform:none;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0}
+.friend-join-btn{padding:9px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s}
+.friend-join-btn:hover{background:#2563eb}
+.friend-lb-list{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.friend-lb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg4);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.friend-lb-item.me{border-color:rgba(38,166,154,0.35);background:rgba(38,166,154,0.05)}
+.friend-lb-rank{font-size:12px;font-weight:700;color:var(--text3);min-width:22px;font-family:'JetBrains Mono',monospace}
+.friend-lb-name{flex:1;font-size:13px;font-weight:600;color:var(--text)}
+.friend-lb-score{font-size:13px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace}
+/* ======== MARKET NEWS ======== */
+.live-news{margin-top:20px;animation:fadeInUp 0.4s ease 0.1s both}
+.live-news-header{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.live-news-list{display:flex;flex-direction:column;gap:8px}
+.live-news-item{padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);transition:all 0.2s;cursor:pointer}
+.live-news-item:hover{border-color:var(--border2);background:var(--bg3)}.live-news-headline{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:3px}
+.live-news-source{font-size:11px;color:var(--text3)}
+
+/* ======== ADMIN PANEL ======== */
+.admin-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease}
+.admin-modal{background:var(--bg2);border:1px solid rgba(239,83,80,0.4);border-radius:20px;padding:32px;max-width:680px;width:92%;max-height:85vh;display:flex;flex-direction:column;gap:0;animation:fadeInScale 0.3s cubic-bezier(0.22,1,0.36,1)}
+.admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-shrink:0}
+.admin-title{font-size:18px;font-weight:800;color:'#fff';display:flex;align-items:center;gap:10px}
+.admin-badge{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(239,83,80,0.12);border:1px solid rgba(239,83,80,0.35);color:var(--red)}
+.admin-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;font-family:'Inter',sans-serif;line-height:1;padding:4px;transition:color 0.2s}.admin-close:hover{color:var(--red)}
+.admin-search{padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;width:100%;margin-bottom:12px;flex-shrink:0}.admin-search:focus{border-color:var(--red)}
+.admin-list{display:flex;flex-direction:column;gap:6px;overflow-y:auto;flex:1;padding-right:4px}
+.admin-list::-webkit-scrollbar{width:4px}.admin-list::-webkit-scrollbar-track{background:transparent}.admin-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.admin-entry{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);transition:all 0.2s}
+.admin-entry:hover{border-color:rgba(239,83,80,0.25);background:var(--bg4)}
+.admin-entry-info{flex:1;min-width:0}
+.admin-entry-name{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-entry-meta{font-size:11px;color:var(--text3);margin-top:1px}
+.admin-del-btn{padding:5px 12px;border-radius:6px;border:1px solid rgba(239,83,80,0.35);background:rgba(239,83,80,0.08);color:var(--red);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;flex-shrink:0}
+.admin-del-btn:hover{background:rgba(239,83,80,0.2);border-color:var(--red)}
+.admin-del-btn.deleted{border-color:var(--border);color:var(--text3);background:transparent;cursor:default;opacity:0.5}
+.admin-stats{font-size:12px;color:var(--text3);margin-top:10px;text-align:right;flex-shrink:0}
+/* hidden trigger */
+.admin-trigger{font-size:11px;color:transparent;cursor:default;user-select:none;margin-top:8px;text-align:center;transition:color 0.3s}
+.admin-trigger:hover{color:rgba(239,83,80,0.3);cursor:pointer}
+
 /* ======== RESPONSIVE ======== */
 @media(max-width:640px){
   .nav-tabs{display:none}
@@ -724,6 +793,52 @@ function getAllStats(userId) {
 
   return {totalGames: Math.max(totalGames, totalFromResults > 0 ? 1 : 0), totalPoints, totalCorrect, totalScenarios, bestScore, avgScore, sessions, scenarioResults: results};
 }
+
+/* ======== ADMIN CONFIG — change this password to whatever you want ======== */
+const ADMIN_PASSWORD = 'MarketMastery2025';
+
+/* ======== DIFFICULTY MULTIPLIERS ======== */
+const DIFF_MULTIPLIERS = {Beginner:1.0, Intermediate:1.25, Advanced:1.5, Expert:2.0};
+const DIFF_MULT_LABELS = {Beginner:'1x', Intermediate:'1.25x', Advanced:'1.5x', Expert:'2x'};
+
+/* ======== SOUND SYSTEM (Web Audio API — no files needed) ======== */
+const SoundSystem = (() => {
+  let ctx = null;
+  let enabled = (() => { try { return localStorage.getItem('mm_sound') !== 'off'; } catch(e){return true;} })();
+  const init = () => {
+    if(!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+    if(ctx && ctx.state === 'suspended') ctx.resume();
+  };
+  const tone = (freq, delay, dur, type='sine', vol=0.18) => {
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, now+delay);
+    g.gain.linearRampToValueAtTime(vol, now+delay+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, now+delay+dur);
+    o.start(now+delay); o.stop(now+delay+dur+0.06);
+  };
+  return {
+    get enabled() { return enabled; },
+    toggle() { enabled = !enabled; try { localStorage.setItem('mm_sound', enabled ? 'on' : 'off'); } catch(e){} return enabled; },
+    play(type) {
+      if(!enabled) return;
+      init();
+      if(!ctx) return;
+      if(type==='correct') {
+        tone(523.25, 0, 0.12); tone(659.25, 0.13, 0.18);
+      } else if(type==='wrong') {
+        tone(220, 0, 0.09, 'sawtooth', 0.12); tone(196, 0.06, 0.14, 'sawtooth', 0.10);
+      } else if(type==='badge') {
+        tone(523.25,0,0.12); tone(659.25,0.1,0.12); tone(783.99,0.2,0.14); tone(1046.5,0.3,0.28,undefined,0.22);
+      } else if(type==='streak') {
+        tone(659.25,0,0.09,'triangle'); tone(783.99,0.1,0.09,'triangle'); tone(987.77,0.2,0.09,'triangle'); tone(1174.66,0.3,0.18,'triangle',0.22);
+      }
+    }
+  };
+})();
 
 /* ======== ACHIEVEMENTS SYSTEM ======== */
 const BADGES = [
@@ -1423,7 +1538,7 @@ function AuthModal({onClose}) {
 }
 
 /* ======== NAVIGATION ======== */
-function NavBar({activeTab,setActiveTab,score,showScore}) {
+function NavBar({activeTab,setActiveTab,score,showScore,soundOn,onSoundToggle}) {
   const {user,logout} = useAuth();
   // eslint-disable-next-line no-unused-vars
   const [showAuth,setShowAuth] = useState(false);
@@ -1448,6 +1563,11 @@ function NavBar({activeTab,setActiveTab,score,showScore}) {
           </div>
         </div>
         <div className="nav-right">
+          {onSoundToggle && (
+            <button className={`sound-toggle${soundOn?' on':''}`} onClick={onSoundToggle} title={soundOn?'Mute sounds':'Enable sounds'}>
+              {soundOn ? '\uD83D\uDD0A' : '\uD83D\uDD07'}{soundOn ? ' On' : ' Off'}
+            </button>
+          )}
           {showScore && <div className="score-display"><span className="score-label">Score</span><span className="score-value">{score}</span></div>}
           {user ? (
             <div style={{position:'relative'}}>
@@ -1610,7 +1730,7 @@ function PlayScreen({onStart, difficulty, onDifficultyChange, scenarioCount, gam
             {[['01','Analyze the Chart','Real daily charts from US market history with 50 & 200-day SMAs, right before a big move'],['02','Read the Indicators','RSI (14), MACD (12,26,9), and 50/200-day Moving Averages on the chart'],['03','Make Your Call','Buy or Sell? Your score reflects both your answer AND your reasoning quality'],['04','Learn From Reality','See what actually happened and why, in plain language']].map(([n,t,d])=><div key={n} className="step"><div className="step-num">{n}</div><div className="step-text"><strong>{t}</strong><span>{d}</span></div></div>)}
           </div>
         </div>
-        <div className="scoring-note"><span className="note-icon">*</span><span><strong>Note:</strong> Charts use <em>real historical data from Yahoo Finance</em>. Indicators use industry-standard periods (RSI 14, MACD 12/26/9, SMA 50/200). Scoring rewards reasoning quality, not lucky guesses.</span></div>
+        <div className="scoring-note"><span className="note-icon">*</span><span><strong>Scoring:</strong> Base points &times; difficulty multiplier. <strong>Beginner 1x &bull; Intermediate 1.25x &bull; Advanced 1.5x &bull; Expert 2x</strong>. Perfect Call on Expert = 200 pts! Charts use real Yahoo Finance data, industry-standard indicators (RSI 14, MACD 12/26/9, SMA 50/200).</span></div>
         <button className="start-btn" onClick={onStart}>Start Game: {scenarioCount} Scenarios <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
         <p className="play-footer">Real Yahoo Finance data | Industry-standard indicators | 50 scenarios from Beginner to Expert</p>
       </div>
@@ -1661,6 +1781,7 @@ function LiveChallengeScreen() {
   const [scenario,setScenario] = useState(null);
   const [prediction,setPrediction] = useState(null);
   const [error,setError] = useState(null);
+  const [news,setNews] = useState([]);
 
   // Live stats from localStorage
   const statsKey = user ? `mm_live_stats_${user.uid}` : null;
@@ -1710,13 +1831,21 @@ function LiveChallengeScreen() {
     setScenario(null);
     setPrediction(null);
     setError(null);
+    setNews([]);
     try {
-      const resp = await fetch(`/api/live-scenario?ticker=${encodeURIComponent(target)}`);
-      const data = await resp.json();
-      if(data.error) {
-        setError(data.error);
+      const [scenResp, newsResp] = await Promise.allSettled([
+        fetch(`/api/live-scenario?ticker=${encodeURIComponent(target)}`),
+        fetch(`/api/news?ticker=${encodeURIComponent(target)}`)
+      ]);
+      if(scenResp.status === 'fulfilled') {
+        const data = await scenResp.value.json();
+        if(data.error) { setError(data.error); }
+        else { setScenario(data); }
       } else {
-        setScenario(data);
+        setError('Failed to connect to server. Make sure live_server.py is running.');
+      }
+      if(newsResp.status === 'fulfilled') {
+        try { const nd = await newsResp.value.json(); setNews(nd||[]); } catch(e){}
       }
     } catch(e) {
       setError('Failed to connect to server. Make sure live_server.py is running.');
@@ -1728,6 +1857,7 @@ function LiveChallengeScreen() {
     if(!scenario || prediction) return;
     const correct = dir === scenario.correctAnswer;
     setPrediction({direction: dir, correct});
+    SoundSystem.play(correct ? 'correct' : 'wrong');
 
     // Update stats
     const newStats = {...stats, played: stats.played + 1};
@@ -1735,6 +1865,7 @@ function LiveChallengeScreen() {
       newStats.correct = stats.correct + 1;
       newStats.streak = stats.streak + 1;
       newStats.bestStreak = Math.max(newStats.streak, stats.bestStreak);
+      if(newStats.streak >= 3) SoundSystem.play('streak');
     } else {
       newStats.streak = 0;
     }
@@ -1892,6 +2023,24 @@ function LiveChallengeScreen() {
             </div>
 
             {/* Prediction or Result */}
+            {/* News panel - shown before prediction (not revealing) */}
+            {news.length > 0 && !prediction && (
+              <div className="live-news">
+                <div className="live-news-header">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6Z"/></svg>
+                  Recent News for {scenario.ticker}
+                </div>
+                <div className="live-news-list">
+                  {news.slice(0,4).map((n,i)=>(
+                    <div key={i} className="live-news-item" onClick={()=>n.url&&window.open(n.url,'_blank')}>
+                      <div className="live-news-headline">{n.title}</div>
+                      <div className="live-news-source">{n.source}{n.age ? ' \u00B7 '+n.age : ''}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {!prediction ? (
               <div className="live-predict">
                 <div className="live-predict-q">Where did the price go from here?</div>
@@ -2056,7 +2205,7 @@ function ResultScreen({result,scenarioNum,totalScenarios,onNext}) {
 
   return (
     <div className="result-screen"><div className="result-content">
-      <div className={`verdict-banner${isCorrect?' correct':' incorrect'}`}><div className="verdict-icon">{isCorrect?'\u2713':'\u2717'}</div><div className="verdict-text"><div className="verdict-main">{isCorrect?'Correct!':'Not quite.'}</div><div className="verdict-sub">You chose <strong>{choice.toUpperCase()}</strong>, correct was <strong>{scenario.correctAnswer.toUpperCase()}</strong></div></div><div className="verdict-points"><span className="pts-num">+{points}</span><span className="pts-label">pts</span></div></div>
+      <div className={`verdict-banner${isCorrect?' correct':' incorrect'}`}><div className="verdict-icon">{isCorrect?'\u2713':'\u2717'}</div><div className="verdict-text"><div className="verdict-main">{isCorrect?'Correct!':'Not quite.'}</div><div className="verdict-sub">You chose <strong>{choice.toUpperCase()}</strong>, correct was <strong>{scenario.correctAnswer.toUpperCase()}</strong></div></div><div className="verdict-points"><span className="pts-num">+{points}</span><span className="pts-label">pts{result.diffMult && result.diffMult > 1 ? ` (${DIFF_MULT_LABELS[scenario.difficulty]})` : ''}</span></div></div>
 
       {aiResult && (
         <div className="ai-feedback-card">
@@ -2175,6 +2324,119 @@ function AchievementsPanel({userId}) {
   );
 }
 
+/* ======== ADMIN PANEL ======== */
+function AdminPanel({onClose, globalData, localLb, onDeleted}) {
+  const [entries, setEntries] = useState([]);
+  const [filter, setFilter] = useState('');
+  const [deleted, setDeleted] = useState(new Set());
+  const [deleting, setDeleting] = useState(null);
+  const [msg, setMsg] = useState('');
+
+  // Load all entries from Firebase + local
+  useEffect(()=>{
+    const local = localLb || [];
+    if(firebaseReady && db) {
+      db.collection('leaderboard').orderBy('score','desc').limit(200).get()
+        .then(snap=>{ const arr=[]; snap.forEach(d=>arr.push(d.data())); setEntries(arr.length > 0 ? arr : local); })
+        .catch(()=>setEntries(local));
+    } else {
+      setEntries(local);
+    }
+  },[]);
+
+  const handleDelete = async (entry) => {
+    if(deleting) return;
+    if(!confirm(`Delete "${entry.name}" from the leaderboard? This cannot be undone.`)) return;
+    setDeleting(entry.uid);
+    try {
+      // Remove from Firebase
+      if(firebaseReady && db) {
+        await db.collection('leaderboard').doc(entry.uid).delete();
+      }
+      // Remove from localStorage
+      const lb = JSON.parse(localStorage.getItem('mm_leaderboard')||'[]').filter(e=>e.uid!==entry.uid);
+      localStorage.setItem('mm_leaderboard', JSON.stringify(lb));
+      setDeleted(s=>new Set([...s, entry.uid]));
+      setMsg(`Deleted "${entry.name}" from leaderboard.`);
+      setTimeout(()=>setMsg(''), 3000);
+      if(onDeleted) onDeleted(entry.uid);
+    } catch(e) {
+      setMsg('Error: ' + e.message);
+    }
+    setDeleting(null);
+  };
+
+  const filtered = entries.filter(e =>
+    (e.name||'').toLowerCase().includes(filter.toLowerCase()) ||
+    (e.uid||'').toLowerCase().includes(filter.toLowerCase())
+  );
+
+  return (
+    <div className="admin-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="admin-modal">
+        <div className="admin-header">
+          <div className="admin-title">
+            <span style={{fontSize:20}}>{'\uD83D\uDEE1\uFE0F'}</span>
+            <span style={{color:'#fff'}}>Leaderboard Admin</span>
+            <span className="admin-badge">Admin Only</span>
+          </div>
+          <button className="admin-close" onClick={onClose}>&#x2715;</button>
+        </div>
+
+        <input
+          className="admin-search"
+          placeholder="Search by name or user ID..."
+          value={filter}
+          onChange={e=>setFilter(e.target.value)}
+        />
+
+        {msg && (
+          <div style={{padding:'8px 12px',marginBottom:8,borderRadius:8,background:'rgba(38,166,154,0.1)',border:'1px solid rgba(38,166,154,0.3)',fontSize:13,color:'var(--green)',flexShrink:0}}>
+            {'\u2713'} {msg}
+          </div>
+        )}
+
+        <div className="admin-list">
+          {filtered.length === 0 && (
+            <div style={{textAlign:'center',padding:32,color:'var(--text3)',fontSize:13}}>No entries found</div>
+          )}
+          {filtered.map((entry,i)=>{
+            const isDel = deleted.has(entry.uid);
+            const isDeleting = deleting === entry.uid;
+            return (
+              <div key={entry.uid||i} className="admin-entry" style={isDel?{opacity:0.4}:{}}>
+                <div style={{minWidth:32,textAlign:'center',fontSize:13,fontWeight:700,color:'var(--text3)',fontFamily:"'JetBrains Mono',monospace"}}>
+                  #{i+1}
+                </div>
+                <div className="admin-entry-info">
+                  <div className="admin-entry-name">{entry.name || 'Unknown'}</div>
+                  <div className="admin-entry-meta">
+                    {entry.score||0} pts &bull; {entry.accuracy||0}% acc &bull; {entry.scenarios||0} scenarios
+                    {entry.livePlayed > 0 ? ` \u00B7 ${entry.livePlayed} live` : ''}
+                    {entry.lastPlayed ? ` \u00B7 ${new Date(entry.lastPlayed).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'})}` : ''}
+                  </div>
+                  <div style={{fontSize:10,color:'var(--text3)',marginTop:1,fontFamily:"'JetBrains Mono',monospace"}}>{(entry.uid||'').slice(0,16)}...</div>
+                </div>
+                <button
+                  className={`admin-del-btn${isDel?' deleted':''}`}
+                  onClick={()=>!isDel&&handleDelete(entry)}
+                  disabled={isDel||isDeleting}
+                >
+                  {isDeleting ? '...' : isDel ? 'Deleted' : '\uD83D\uDDD1\uFE0F Remove'}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="admin-stats">
+          {filtered.length} of {entries.length} entries shown &bull; {deleted.size} deleted this session
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LeaderboardScreen({onPlay}) {
   const {user} = useAuth();
   const stats = user ? getAllStats(user.uid) : null;
@@ -2182,6 +2444,10 @@ function LeaderboardScreen({onPlay}) {
   const [lbMode, setLbMode] = useState('all'); // all, practice, live
   const [globalData, setGlobalData] = useState(null);
   const [loadingGlobal, setLoadingGlobal] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [adminAuthed, setAdminAuthed] = useState(false);
+  const [adminPwInput, setAdminPwInput] = useState('');
+  const [adminPwError, setAdminPwError] = useState(false);
 
   // Update local leaderboard with current user stats
   const localLb = useMemo(()=>{
@@ -2320,7 +2586,233 @@ function LeaderboardScreen({onPlay}) {
           : 'Leaderboard is local to this browser. To enable global rankings, set up Firebase (free) and add your config to the site.'
         }</span>
       </div>
+
+      {/* Friend Leaderboard */}
+      <FriendLeaderboard user={user} globalData={globalData} localLb={localLb}/>
+
+      {/* Hidden admin trigger — hover to reveal, click to open */}
+      <div className="admin-trigger" onClick={()=>setShowAdmin(true)} title="">
+        Admin
+      </div>
+
+      {/* Admin password gate */}
+      {showAdmin && !adminAuthed && (
+        <div className="admin-overlay" onClick={e=>e.target===e.currentTarget&&(setShowAdmin(false),setAdminPwInput(''),setAdminPwError(false))}>
+          <div style={{background:'var(--bg2)',border:'1px solid rgba(239,83,80,0.4)',borderRadius:16,padding:28,width:320,animation:'fadeInScale 0.3s cubic-bezier(0.22,1,0.36,1)'}}>
+            <div style={{fontSize:16,fontWeight:800,color:'#fff',marginBottom:6,display:'flex',alignItems:'center',gap:8}}>
+              {'\uD83D\uDD10'} Admin Access
+            </div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:16}}>Enter admin password to manage the leaderboard.</div>
+            <input
+              type="password"
+              placeholder="Admin password..."
+              value={adminPwInput}
+              onChange={e=>{setAdminPwInput(e.target.value);setAdminPwError(false);}}
+              onKeyDown={e=>{
+                if(e.key==='Enter') {
+                  if(adminPwInput===ADMIN_PASSWORD){setAdminAuthed(true);setAdminPwInput('');}
+                  else{setAdminPwError(true);}
+                }
+                if(e.key==='Escape'){setShowAdmin(false);setAdminPwInput('');}
+              }}
+              style={{width:'100%',padding:'10px 12px',borderRadius:8,border:`1px solid ${adminPwError?'var(--red)':'var(--border)'}`,background:'var(--bg3)',color:'var(--text)',fontSize:14,fontFamily:'Inter,sans-serif',outline:'none',marginBottom:8}}
+              autoFocus
+            />
+            {adminPwError && <div style={{color:'var(--red)',fontSize:12,marginBottom:8}}>{'\u274C'} Incorrect password</div>}
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>{if(adminPwInput===ADMIN_PASSWORD){setAdminAuthed(true);setAdminPwInput('');}else{setAdminPwError(true);}}}
+                style={{flex:1,padding:'10px',borderRadius:8,border:'none',background:'var(--red)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>
+                Unlock
+              </button>
+              <button onClick={()=>{setShowAdmin(false);setAdminPwInput('');setAdminPwError(false);}}
+                style={{padding:'10px 16px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg3)',color:'var(--text)',fontSize:13,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin panel (authenticated) */}
+      {showAdmin && adminAuthed && (
+        <AdminPanel
+          onClose={()=>{setShowAdmin(false);setAdminAuthed(false);}}
+          globalData={globalData}
+          localLb={localLb}
+          onDeleted={(uid)=>{
+            if(globalData) setGlobalData(d=>d.filter(e=>e.uid!==uid));
+          }}
+        />
+      )}
     </div></div>
+  );
+}
+
+/* ======== FRIEND LEADERBOARD COMPONENT ======== */
+function FriendLeaderboard({user, globalData, localLb}) {
+  const [myCode] = useState(()=>{
+    if(!user) return null;
+    let c = localStorage.getItem('mm_friend_code');
+    if(!c) {
+      // Generate 6-char code from uid hash
+      const h = user.uid.split('').reduce((a,b)=>(a<<5)-a+b.charCodeAt(0),0);
+      c = Math.abs(h).toString(36).toUpperCase().padStart(6,'0').slice(0,6);
+      localStorage.setItem('mm_friend_code', c);
+    }
+    return c;
+  });
+  const [joinInput, setJoinInput] = useState('');
+  const [joinedCodes, setJoinedCodes] = useState(()=>{
+    try { return JSON.parse(localStorage.getItem('mm_friend_groups')||'[]'); } catch(e){return [];}
+  });
+  const [copied, setCopied] = useState(false);
+  const [joinMsg, setJoinMsg] = useState('');
+  const [friendMembers, setFriendMembers] = useState([]);
+
+  // Register own code in Firebase and fetch friends
+  useEffect(()=>{
+    if(!user || !myCode || !firebaseReady || !db) return;
+    // Register this user under their code
+    db.collection('friendGroups').doc(myCode).set({
+      code: myCode, creatorUid: user.uid, updatedAt: new Date().toISOString()
+    }, {merge:true}).catch(()=>{});
+    // Add self to code's members
+    db.collection('friendGroups').doc(myCode).collection('members').doc(user.uid).set({
+      uid: user.uid, name: user.name, score: 0, lastUpdated: new Date().toISOString()
+    }, {merge:true}).catch(()=>{});
+  },[user, myCode]);
+
+  // Fetch members from all joined groups
+  useEffect(()=>{
+    if(!user || joinedCodes.length === 0) {
+      // Show local people with matching codes from localLb
+      return;
+    }
+    if(!firebaseReady || !db) {
+      // Fallback: show local leaderboard
+      setFriendMembers(localLb || []);
+      return;
+    }
+    // Fetch members from Firebase for all codes including own
+    const allCodes = [...new Set([myCode, ...joinedCodes].filter(Boolean))];
+    const fetches = allCodes.map(code =>
+      db.collection('friendGroups').doc(code).collection('members').get()
+        .then(snap => { const m = []; snap.forEach(d=>m.push(d.data())); return m; })
+        .catch(()=>[])
+    );
+    Promise.all(fetches).then(results=>{
+      const seen = new Set();
+      const merged = [];
+      results.flat().forEach(m=>{
+        if(!seen.has(m.uid)) { seen.add(m.uid); merged.push(m); }
+      });
+      // Enrich with leaderboard data
+      const allLb = globalData || localLb || [];
+      const enriched = merged.map(m=>{
+        const lb = allLb.find(e=>e.uid===m.uid);
+        return lb ? {...lb, ...m} : m;
+      }).sort((a,b)=>(b.score||0)-(a.score||0));
+      setFriendMembers(enriched);
+    });
+  },[joinedCodes, user, globalData, localLb]);
+
+  const handleCopy = () => {
+    const url = `${window.location.origin}${window.location.pathname}?friend=${myCode}`;
+    navigator.clipboard.writeText(url).catch(()=>{});
+    setCopied(true);
+    setTimeout(()=>setCopied(false), 2000);
+  };
+
+  const handleJoin = () => {
+    const code = joinInput.trim().toUpperCase().slice(0,6);
+    if(!code || code.length < 4) { setJoinMsg('Enter a valid code'); return; }
+    if(code === myCode) { setJoinMsg("That's your own code!"); return; }
+    if(joinedCodes.includes(code)) { setJoinMsg('Already in this group'); return; }
+    const newCodes = [...joinedCodes, code];
+    setJoinedCodes(newCodes);
+    localStorage.setItem('mm_friend_groups', JSON.stringify(newCodes));
+    // Register self in that group's members
+    if(firebaseReady && db && user) {
+      db.collection('friendGroups').doc(code).collection('members').doc(user.uid).set({
+        uid: user.uid, name: user.name, score: 0, lastUpdated: new Date().toISOString()
+      }, {merge:true}).catch(()=>{});
+    }
+    setJoinInput('');
+    setJoinMsg('\u2713 Joined! Loading members...');
+    setTimeout(()=>setJoinMsg(''), 3000);
+  };
+
+  // Handle ?friend=CODE in URL on load
+  useEffect(()=>{
+    const params = new URLSearchParams(window.location.search);
+    const urlCode = params.get('friend');
+    if(urlCode && user && urlCode !== myCode && !joinedCodes.includes(urlCode)) {
+      const newCodes = [...joinedCodes, urlCode];
+      setJoinedCodes(newCodes);
+      localStorage.setItem('mm_friend_groups', JSON.stringify(newCodes));
+      if(firebaseReady && db) {
+        db.collection('friendGroups').doc(urlCode).collection('members').doc(user.uid).set({
+          uid: user.uid, name: user.name, score: 0, lastUpdated: new Date().toISOString()
+        }, {merge:true}).catch(()=>{});
+      }
+    }
+  },[user]);
+
+  if(!user) return (
+    <div className="friend-section" style={{marginTop:20}}>
+      <div className="friend-title">{'\uD83D\uDC65'} Friend Leaderboard</div>
+      <p style={{fontSize:13,color:'var(--text2)'}}>Create a profile to generate your friend invite code and compete with friends!</p>
+    </div>
+  );
+
+  return (
+    <div className="friend-section" style={{marginTop:20}}>
+      <div className="friend-title">{'\uD83D\uDC65'} Friend Leaderboard</div>
+      <p style={{fontSize:13,color:'var(--text2)',marginBottom:14}}>Share your code with friends. Anyone who enters it will appear on your private leaderboard.</p>
+
+      {/* Your code */}
+      <div>
+        <div style={{fontSize:11,fontWeight:600,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>Your Invite Code</div>
+        <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+          <span className="friend-code-display">{myCode}</span>
+          <div className="friend-actions">
+            <button className="friend-copy-btn" onClick={handleCopy}>{copied ? '\u2713 Copied!' : '\uD83D\uDD17 Copy Link'}</button>
+          </div>
+        </div>
+        <div style={{fontSize:11,color:'var(--text3)',marginTop:6}}>Share link: <code style={{fontSize:11,color:'var(--text2)'}}>{window.location.origin}?friend={myCode}</code></div>
+      </div>
+
+      {/* Join a group */}
+      <div style={{marginTop:16}}>
+        <div style={{fontSize:11,fontWeight:600,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>Join a Friend's Group</div>
+        <div className="friend-join-row">
+          <input className="friend-join-input" placeholder="Enter friend code..." value={joinInput} onChange={e=>setJoinInput(e.target.value.toUpperCase())} maxLength={6} onKeyDown={e=>e.key==='Enter'&&handleJoin()}/>
+          <button className="friend-join-btn" onClick={handleJoin}>Join</button>
+        </div>
+        {joinMsg && <div style={{fontSize:12,color:'var(--green)',marginTop:6}}>{joinMsg}</div>}
+        {joinedCodes.length > 0 && <div style={{fontSize:11,color:'var(--text3)',marginTop:4}}>In {joinedCodes.length} group(s): {joinedCodes.join(', ')}</div>}
+      </div>
+
+      {/* Friend members leaderboard */}
+      {friendMembers.length > 0 && (
+        <div style={{marginTop:16}}>
+          <div style={{fontSize:11,fontWeight:600,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>Group Rankings ({friendMembers.length} players)</div>
+          <div className="friend-lb-list">
+            {friendMembers.slice(0,20).map((m,i)=>(
+              <div key={m.uid||i} className={`friend-lb-item${m.uid===user.uid?' me':''}`}>
+                <span className="friend-lb-rank">{i===0?'\uD83E\uDD47':i===1?'\uD83E\uDD48':i===2?'\uD83E\uDD49':i+1}</span>
+                <span className="friend-lb-name">{m.name}{m.uid===user.uid?' (You)':''}</span>
+                <span className="friend-lb-score">{m.score||0} pts</span>
+                {m.accuracy > 0 && <span style={{fontSize:11,color:'var(--text3)',marginLeft:4}}>{m.accuracy}%</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {friendMembers.length === 0 && joinedCodes.length === 0 && (
+        <div style={{marginTop:14,fontSize:13,color:'var(--text3)',fontStyle:'italic'}}>Share your code with friends to see their scores here!</div>
+      )}
+    </div>
   );
 }
 
@@ -2417,6 +2909,26 @@ function StatsScreen({onPlay}) {
   );
 }
 
+/* ======== BADGE NOTIFICATION COMPONENT ======== */
+function BadgeNotification({badge, onClose}) {
+  const [exiting, setExiting] = useState(false);
+  useEffect(()=>{
+    const t = setTimeout(()=>{ setExiting(true); setTimeout(onClose, 420); }, 4500);
+    return ()=>clearTimeout(t);
+  },[]);
+  return (
+    <div className={`badge-toast${exiting?' exit':''}`}>
+      <div className="badge-toast-icon">{badge.icon}</div>
+      <div className="badge-toast-text">
+        <span className="badge-toast-label">{'\u{1F3C5}'} Badge Unlocked!</span>
+        <span className="badge-toast-name">{badge.name}</span>
+        <span className="badge-toast-desc">{badge.desc}</span>
+      </div>
+      <button className="badge-toast-close" onClick={()=>{setExiting(true);setTimeout(onClose,420);}}>&#x2715;</button>
+    </div>
+  );
+}
+
 /* ======== APP ======== */
 function AppInner() {
   const {user} = useAuth();
@@ -2428,6 +2940,8 @@ function AppInner() {
   const [lastResult,setLastResult]=useState(null);
   const [gameMode,setGameMode]=useState(localStorage.getItem('mm_game_mode')||'prediction');
   const [difficulty,setDifficulty]=useState(localStorage.getItem('mm_difficulty')||'All');
+  const [newBadgeQueue,setNewBadgeQueue]=useState([]);
+  const [soundOn,setSoundOn]=useState(SoundSystem.enabled);
 
   const filteredScenarios = useMemo(()=>{
     if(difficulty==='All') return scenarios;
@@ -2467,23 +2981,34 @@ function AppInner() {
     const sc=filteredScenarios[idx];
     const ok=choice===sc.correctAnswer;
     const sq=sc.signalQuality;
+    const diffMult = DIFF_MULTIPLIERS[sc.difficulty] || 1.0;
     let pts=0,badge='';
     if(ok){if(sq==='strong'){pts=100;badge='Perfect Call';}else if(sq==='moderate'){pts=75;badge='Good Call';}else{pts=60;badge='Lucky Call';}}
     else{if(sq==='strong'){pts=0;badge='Missed Signal';}else if(sq==='moderate'){pts=10;badge='Tough Call';}else{pts=40;badge='Smart Reasoning';}}
+    pts = Math.round(pts * diffMult);
 
     // Add AI reasoning bonus
     if(aiResult && aiResult.score) {
       pts += Math.round(aiResult.score / 5); // Up to 20 bonus points
     }
 
-    const r={scenario:sc,choice,isCorrect:ok,points:pts,badge,qualityFeedback:sc.decisionFeedback[choice].feedback,reasoning,aiResult};
+    const r={scenario:sc,choice,isCorrect:ok,points:pts,badge,qualityFeedback:sc.decisionFeedback[choice].feedback,reasoning,aiResult,diffMult};
     setAnswers(p=>[...p,r]);setLastResult(r);setGameState('result');
+
+    // Sound feedback
+    SoundSystem.play(ok ? 'correct' : 'wrong');
 
     // Save individual result immediately to localStorage
     if(user) {
       saveScenarioResult(user.uid, sc.id, {
         ticker: sc.ticker, choice, isCorrect: ok, points: pts, badge,
       });
+      // Check for newly unlocked badges
+      const {newlyUnlocked} = getUnlockedBadges(user.uid);
+      if(newlyUnlocked.length > 0) {
+        setNewBadgeQueue(q => [...q, ...newlyUnlocked]);
+        SoundSystem.play('badge');
+      }
       // Update leaderboard
       const latestStats = getAllStats(user.uid);
       let liveStats = null;
@@ -2515,11 +3040,24 @@ function AppInner() {
     return <HomeScreen onPlay={()=>setActiveTab('play')}/>;
   };
 
+  const handleSoundToggle = () => {
+    const newState = SoundSystem.toggle();
+    setSoundOn(newState);
+    if(newState) SoundSystem.play('correct');
+  };
+
   return (
     <div className="app">
       {showIntro && <IntroOverlay onDismiss={()=>setShowIntro(false)}/>}
-      <NavBar activeTab={activeTab} setActiveTab={setActiveTab} score={totalScore} showScore={showScore}/>
+      <NavBar activeTab={activeTab} setActiveTab={setActiveTab} score={totalScore} showScore={showScore} soundOn={soundOn} onSoundToggle={handleSoundToggle}/>
       {renderContent()}
+      {newBadgeQueue.length > 0 && (
+        <BadgeNotification
+          key={newBadgeQueue[0].id}
+          badge={newBadgeQueue[0]}
+          onClose={()=>setNewBadgeQueue(q=>q.slice(1))}
+        />
+      )}
     </div>
   );
 }
