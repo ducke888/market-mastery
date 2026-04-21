@@ -150,7 +150,7 @@ background-size:60px 60px}
 .modal-error{color:var(--red);font-size:13px;margin-bottom:12px;padding:8px 12px;background:rgba(239,83,80,0.1);border-radius:8px}
 
 /* ======== LANDING HOME ======== */
-.landing{min-height:calc(100vh - 56px);position:relative;overflow:hidden;background:var(--bg)}
+.landing{min-height:calc(100vh - 56px);position:relative;overflow:hidden;background:var(--bg);isolation:isolate}
 
 /* Grid overlay */
 .landing::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:80px 80px;pointer-events:none}
@@ -169,6 +169,15 @@ background-size:60px 60px}
 @media(max-width:860px){.land-desc{margin:0 auto 36px}}
 .land-cta{display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--green),#2dd4bf);color:#fff;font-size:16px;font-weight:700;padding:16px 36px;border:none;border-radius:var(--radius);cursor:pointer;transition:all 0.3s;font-family:'Inter',sans-serif}
 .land-cta:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(38,166,154,0.4)}
+/* ======== GET STARTED BUTTON ======== */
+.gs-btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 32px;background:linear-gradient(135deg,var(--green),#2dd4bf);color:#fff;font-size:16px;font-weight:700;border:none;border-radius:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:box-shadow 0.3s,transform 0.3s;min-width:180px}
+.gs-btn:hover{box-shadow:0 12px 32px rgba(38,166,154,0.45);transform:translateY(-2px)}
+.gs-btn:active{transform:translateY(0) scale(0.98)}
+.gs-btn-label{margin-right:36px;transition:opacity 0.4s;white-space:nowrap;position:relative;z-index:1}
+.gs-btn:hover .gs-btn-label{opacity:0}
+.gs-btn-arrow{position:absolute;right:4px;top:4px;bottom:4px;border-radius:8px;background:rgba(255,255,255,0.18);display:grid;place-items:center;width:25%;transition:width 0.45s cubic-bezier(0.22,1,0.36,1);z-index:2;overflow:hidden}
+.gs-btn:hover .gs-btn-arrow{width:calc(100% - 8px)}
+.gs-btn:active .gs-btn-arrow{transform:scale(0.96)}
 .land-stats{display:flex;gap:32px;margin-top:40px}
 @media(max-width:860px){.land-stats{justify-content:center}}
 .land-stat{display:flex;flex-direction:column}
@@ -189,7 +198,7 @@ background-size:60px 60px}
 .land-card-btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid;cursor:default;font-family:'Inter',sans-serif}
 
 /* Features grid */
-.land-features{max-width:1200px;margin:0 auto;padding:80px 32px 0;position:relative;z-index:2}
+.land-features{max-width:1200px;margin:0 auto;padding:80px 32px 0;position:relative;z-index:3}
 @media(max-width:860px){.land-features{padding:48px 20px 0}}
 .land-features-title{font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:24px;text-align:center}
 .land-features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -1428,6 +1437,79 @@ function Chart({scenarioId}) {
   );
 }
 
+/* ======== SPARKLES CANVAS ======== */
+function SparklesCanvas({color='#ffffff', density=120, speed=0.6, starRatio=0.35}) {
+  const canvasRef = useRef(null);
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animId;
+    let W = 0, H = 0, particles = [];
+
+    // Parse hex color to rgb
+    const hex = color.replace('#','');
+    const r = parseInt(hex.slice(0,2),16);
+    const g = parseInt(hex.slice(2,4),16);
+    const b = parseInt(hex.slice(4,6),16);
+
+    const makePart = ()=>({
+      x: Math.random()*W, y: Math.random()*H,
+      size: Math.random()*1.6+0.4,
+      opacity: Math.random(),
+      opacityDir: Math.random()>0.5?1:-1,
+      opacitySpeed: 0.004+Math.random()*0.012,
+      vx: (Math.random()-0.5)*speed*0.4,
+      vy: (Math.random()-0.5)*speed*0.4,
+      isStar: Math.random()<starRatio,
+    });
+
+    const resize = ()=>{
+      W = canvas.offsetWidth; H = canvas.offsetHeight;
+      canvas.width = W; canvas.height = H;
+      particles = Array.from({length:Math.round(density*(W*H)/(1440*900))},makePart);
+    };
+
+    const drawStar = (x,y,size,op)=>{
+      ctx.save(); ctx.globalAlpha=op; ctx.fillStyle=`rgb(${r},${g},${b})`;
+      ctx.translate(x,y);
+      const s=size*2.2;
+      ctx.beginPath();
+      ctx.moveTo(0,-s); ctx.lineTo(s*0.22,-s*0.22); ctx.lineTo(s,0);
+      ctx.lineTo(s*0.22,s*0.22); ctx.lineTo(0,s); ctx.lineTo(-s*0.22,s*0.22);
+      ctx.lineTo(-s,0); ctx.lineTo(-s*0.22,-s*0.22);
+      ctx.closePath(); ctx.fill(); ctx.restore();
+    };
+
+    const draw = ()=>{
+      ctx.clearRect(0,0,W,H);
+      for(const p of particles){
+        p.opacity += p.opacityDir * p.opacitySpeed;
+        if(p.opacity>=1){p.opacity=1;p.opacityDir=-1;}
+        else if(p.opacity<=0){p.opacity=0;p.opacityDir=1;}
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<-10)p.x=W+10; else if(p.x>W+10)p.x=-10;
+        if(p.y<-10)p.y=H+10; else if(p.y>H+10)p.y=-10;
+        if(p.isStar){
+          drawStar(p.x,p.y,p.size,p.opacity);
+        } else {
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+          ctx.fillStyle=`rgba(${r},${g},${b},${p.opacity})`; ctx.fill();
+        }
+      }
+      animId=requestAnimationFrame(draw);
+    };
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas.parentElement||canvas);
+    resize();
+    draw();
+    return ()=>{ cancelAnimationFrame(animId); ro.disconnect(); };
+  },[color,density,speed,starRatio]);
+
+  return React.createElement('canvas',{ref:canvasRef,style:{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:1}});
+}
+
 /* ======== INTRO ANIMATION ======== */
 function IntroOverlay({onDismiss}) {
   const [phase,setPhase] = useState('active');
@@ -1453,7 +1535,10 @@ function IntroOverlay({onDismiss}) {
   };
 
   return (
-    <div className={`intro-overlay${phase==='exit'?' phase-exit':''}`}>
+    <div className={`intro-overlay${phase==='exit'?' phase-exit':''}`} style={{position:'fixed',inset:0}}>
+      {/* Sparkles everywhere */}
+      <SparklesCanvas color="#26a69a" density={180} speed={0.5} starRatio={0.4}/>
+      <SparklesCanvas color="#ffffff" density={80} speed={0.3} starRatio={0.2}/>
       <div className="intro-bg">
         <div className="fluid-shape fluid-1"/>
         <div className="fluid-shape fluid-2"/>
@@ -1597,14 +1682,22 @@ function NavBar({activeTab,setActiveTab,score,showScore,soundOn,onSoundToggle}) 
 function HomeScreen({onPlay}) {
   const bars = useMemo(()=>Array.from({length:30},(_,i)=>({h:20+Math.random()*60, green:Math.random()>0.4, delay:i*0.04})),[]);
   return (
-    <div className="landing">
+    <div className="landing" style={{position:'relative'}}>
+      {/* Sparkles background layer */}
+      <SparklesCanvas color="#26a69a" density={100} speed={0.4} starRatio={0.35}/>
+      <SparklesCanvas color="#ffffff" density={50} speed={0.25} starRatio={0.15}/>
       {/* Hero */}
-      <div className="land-hero">
+      <div className="land-hero" style={{position:'relative',zIndex:2}}>
         <div className="land-hero-left">
           <div className="land-tag"><span className="dot"/> Live Market Education</div>
           <h1 className="land-title">Master<br/>Technical<br/><span className="accent">Analysis</span></h1>
           <p className="land-desc">Learn to read real stock charts, interpret RSI, MACD, and Moving Averages, and predict major market moves using real Yahoo Finance data.</p>
-          <button className="land-cta" onClick={onPlay}>Start Playing <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+          <button className="gs-btn" onClick={onPlay}>
+            <span className="gs-btn-label">Start Playing</span>
+            <span className="gs-btn-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+          </button>
           <div className="land-stats">
             <div className="land-stat"><span className="land-stat-num">50</span><span className="land-stat-label">Scenarios</span></div>
             <div className="land-stat"><span className="land-stat-num">30+</span><span className="land-stat-label">Tickers</span></div>
@@ -1695,7 +1788,12 @@ function HomeScreen({onPlay}) {
         <div className="land-bottom-box">
           <h2>Ready to Test Your Skills?</h2>
           <p>50 real scenarios. 30+ tickers. From beginner to expert. No sign-up required.</p>
-          <button className="land-cta" onClick={onPlay}>Start Playing <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+          <button className="gs-btn" onClick={onPlay}>
+            <span className="gs-btn-label">Start Playing</span>
+            <span className="gs-btn-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+          </button>
         </div>
       </div>
     </div>

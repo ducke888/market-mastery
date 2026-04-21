@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: market-mastery
+    runtime: python
+    buildCommand: python3 build.py
+    startCommand: python3 live_server.py
+    envVars:
+      - key: PORT
+        value: 10000
