@@ -803,6 +803,9 @@ function getAllStats(userId) {
   return {totalGames: Math.max(totalGames, totalFromResults > 0 ? 1 : 0), totalPoints, totalCorrect, totalScenarios, bestScore, avgScore, sessions, scenarioResults: results};
 }
 
+/* ======== DEMO ACCESS PASSWORD — change to whatever you want ======== */
+const DEMO_PASSWORD = 'ISMDemo2025';
+
 /* ======== ADMIN CONFIG — change this password to whatever you want ======== */
 const ADMIN_PASSWORD = 'MarketMastery2025';
 
@@ -3194,7 +3197,129 @@ function AppInner() {
   );
 }
 
+/* ======== LOCK SCREEN ======== */
+function LockScreen({onUnlock}) {
+  const [pw, setPw] = React.useState('');
+  const [err, setErr] = React.useState(false);
+  const [shake, setShake] = React.useState(false);
+  const [show, setShow] = React.useState(false);
+
+  function attempt() {
+    if(pw === DEMO_PASSWORD) {
+      try { localStorage.setItem('mm_demo_unlocked','1'); } catch(e){}
+      onUnlock();
+    } else {
+      setErr(true);
+      setShake(true);
+      setTimeout(()=>setShake(false), 600);
+      setTimeout(()=>setErr(false), 2500);
+    }
+  }
+
+  return (
+    <div style={{
+      position:'fixed',inset:0,background:'#0a0b10',display:'flex',
+      alignItems:'center',justifyContent:'center',zIndex:99999,
+      fontFamily:"'Inter',sans-serif"
+    }}>
+      <div style={{
+        background:'#12141c',border:'1px solid rgba(38,166,154,0.2)',
+        borderRadius:20,padding:'48px 40px',width:'100%',maxWidth:420,
+        textAlign:'center',boxShadow:'0 24px 80px rgba(0,0,0,0.6)',
+        animation:shake?'ls-shake 0.6s ease':'none'
+      }}>
+        <style>{`
+          @keyframes ls-shake {
+            0%,100%{transform:translateX(0)}
+            15%{transform:translateX(-8px)}
+            30%{transform:translateX(8px)}
+            45%{transform:translateX(-6px)}
+            60%{transform:translateX(6px)}
+            75%{transform:translateX(-3px)}
+            90%{transform:translateX(3px)}
+          }
+          .ls-input:focus{outline:none;border-color:rgba(38,166,154,0.7)!important;box-shadow:0 0 0 3px rgba(38,166,154,0.12)!important}
+          .ls-btn:hover{background:linear-gradient(135deg,#2dd4bf,#26a69a)!important;transform:translateY(-1px);box-shadow:0 8px 24px rgba(38,166,154,0.35)!important}
+          .ls-btn:active{transform:translateY(0)!important}
+        `}</style>
+
+        {/* Lock icon */}
+        <div style={{
+          width:64,height:64,borderRadius:16,
+          background:'rgba(38,166,154,0.12)',border:'1px solid rgba(38,166,154,0.25)',
+          display:'flex',alignItems:'center',justifyContent:'center',
+          fontSize:28,margin:'0 auto 24px',
+        }}>🔒</div>
+
+        <h2 style={{color:'#fff',fontSize:22,fontWeight:800,marginBottom:6,letterSpacing:'-0.03em'}}>
+          Market<span style={{color:'#26a69a'}}> Mastery</span>
+        </h2>
+        <p style={{color:'#6b7280',fontSize:13,marginBottom:32,lineHeight:1.5}}>
+          This is a private demo.<br/>Enter the access password to continue.
+        </p>
+
+        {/* Password field */}
+        <div style={{position:'relative',marginBottom:16}}>
+          <input
+            className="ls-input"
+            type={show?'text':'password'}
+            placeholder="Enter password"
+            value={pw}
+            onChange={e=>{setPw(e.target.value);setErr(false);}}
+            onKeyDown={e=>e.key==='Enter'&&attempt()}
+            style={{
+              width:'100%',padding:'14px 48px 14px 16px',
+              background:'#1a1d28',border:`1.5px solid ${err?'#ef4444':'rgba(255,255,255,0.1)'}`,
+              borderRadius:12,color:'#fff',fontSize:15,
+              transition:'all 0.2s',letterSpacing:show?'normal':'0.12em'
+            }}
+          />
+          <button
+            onClick={()=>setShow(s=>!s)}
+            style={{
+              position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',
+              background:'none',border:'none',color:'#6b7280',cursor:'pointer',
+              fontSize:16,padding:0,lineHeight:1
+            }}
+          >{show?'🙈':'👁'}</button>
+        </div>
+
+        {err && (
+          <p style={{color:'#ef4444',fontSize:13,marginBottom:12,textAlign:'left'}}>
+            ✗ Incorrect password. Try again.
+          </p>
+        )}
+
+        <button
+          className="ls-btn"
+          onClick={attempt}
+          style={{
+            width:'100%',padding:'14px',
+            background:'linear-gradient(135deg,#26a69a,#1e8a7f)',
+            border:'none',borderRadius:12,color:'#fff',
+            fontSize:15,fontWeight:700,cursor:'pointer',
+            transition:'all 0.2s',boxShadow:'0 4px 16px rgba(38,166,154,0.25)',
+            letterSpacing:'0.01em'
+          }}
+        >
+          Enter Demo →
+        </button>
+
+        <p style={{color:'#374151',fontSize:11,marginTop:24}}>
+          Market Mastery · Private Preview
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function App() {
+  const [unlocked, setUnlocked] = React.useState(() => {
+    try { return localStorage.getItem('mm_demo_unlocked') === '1'; } catch(e){return false;}
+  });
+
+  if(!unlocked) return <LockScreen onUnlock={()=>setUnlocked(true)}/>;
+
   return (
     <AuthProvider>
       <AppInner/>
