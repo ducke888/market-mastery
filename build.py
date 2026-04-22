@@ -1869,20 +1869,90 @@ function HomeScreen({onPlay}) {
   );
 }
 
-/* ======== PLAY SCREEN (difficulty + start) ======== */
-function PlayScreen({onStart, difficulty, onDifficultyChange, scenarioCount, gameMode, onModeChange}) {
-  const diffs = ['All','Beginner','Intermediate','Advanced','Expert'];
-  const dc = {All:'var(--accent)',Beginner:'#26a69a',Intermediate:'#ff9800',Advanced:'#ef5350',Expert:'#9b59b6'};
+/* ======== PLAY SCREEN (multi-select topics + start) ======== */
+function PlayScreen({onStart, difficulties, onDifficultyChange, scenarioCount, gameMode, onModeChange}) {
+  const ALL_DIFFS = ['Beginner','Intermediate','Advanced','Expert'];
+  const dc = {Beginner:'#26a69a',Intermediate:'#ff9800',Advanced:'#ef5350',Expert:'#9b59b6'};
+  const allSelected = difficulties.length === ALL_DIFFS.length;
+  const noneSelected = difficulties.length === 0;
   return (
     <div className="play-screen">
       <div className="play-content">
-        <h1 className="play-title">Choose Your<span className="accent"> Challenge</span></h1>
-        <p className="play-sub">Select a difficulty level and game mode, then start analyzing real market scenarios.</p>
+        <h1 className="play-title">Build Your<span className="accent"> Mega Flashcard</span></h1>
+        <p className="play-sub">Pick the topics you want to study, or hit Mega Flashcard to include everything. Mix and match difficulties.</p>
+
+        {/* Mega Flashcard preset */}
+        <div style={{marginBottom:20,animation:'fadeInUp 0.5s ease 0.1s both'}}>
+          <button
+            onClick={()=>onDifficultyChange('__all__')}
+            style={{
+              width:'100%',padding:'18px 22px',
+              background:allSelected?'linear-gradient(135deg,rgba(38,166,154,0.18),rgba(155,89,182,0.18))':'var(--bg3)',
+              border:`1.5px solid ${allSelected?'rgba(38,166,154,0.6)':'var(--border)'}`,
+              borderRadius:14,cursor:'pointer',
+              display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,
+              transition:'all 0.25s',color:'var(--text)',fontFamily:'inherit',textAlign:'left',
+              boxShadow:allSelected?'0 6px 24px rgba(38,166,154,0.18)':'none'
+            }}
+          >
+            <div style={{display:'flex',alignItems:'center',gap:14}}>
+              <span style={{fontSize:24}}>{allSelected?'⚡':'✨'}</span>
+              <div>
+                <div style={{fontSize:15,fontWeight:800,letterSpacing:'-0.01em'}}>Mega Flashcard</div>
+                <div style={{fontSize:12,color:'var(--text3)',marginTop:2}}>
+                  All {scenarios.length} scenarios across every difficulty
+                </div>
+              </div>
+            </div>
+            <span style={{
+              fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',
+              padding:'6px 12px',borderRadius:100,
+              background:allSelected?'rgba(38,166,154,0.2)':'rgba(255,255,255,0.05)',
+              color:allSelected?'var(--green)':'var(--text3)',
+              border:`1px solid ${allSelected?'rgba(38,166,154,0.4)':'var(--border)'}`
+            }}>{allSelected?'✓ Active':'Select All'}</span>
+          </button>
+        </div>
+
         <div className="difficulty-picker">
-          <h2 style={{fontSize:13,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--text3)',marginBottom:16}}>Difficulty</h2>
-          <div className="diff-options">
-            {diffs.map(d=><button key={d} className={`diff-btn${difficulty===d?' active':''}`} style={difficulty===d?{borderColor:dc[d],color:dc[d],background:dc[d]+'15'}:{}} onClick={()=>onDifficultyChange(d)}>{d}<span className="diff-count">{d==='All'?scenarios.length:scenarios.filter(s=>s.difficulty===d).length}</span></button>)}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+            <h2 style={{fontSize:13,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--text3)',margin:0}}>Topics ({difficulties.length}/{ALL_DIFFS.length} selected)</h2>
+            {!noneSelected && !allSelected && (
+              <button onClick={()=>onDifficultyChange('__none__')} style={{background:'none',border:'none',color:'var(--text3)',fontSize:11,fontWeight:600,cursor:'pointer',textDecoration:'underline',padding:0,fontFamily:'inherit'}}>
+                Clear all
+              </button>
+            )}
           </div>
+          <div className="diff-options">
+            {ALL_DIFFS.map(d=>{
+              const active = difficulties.includes(d);
+              const count = scenarios.filter(s=>s.difficulty===d).length;
+              return (
+                <button
+                  key={d}
+                  className={`diff-btn${active?' active':''}`}
+                  style={active?{borderColor:dc[d],color:dc[d],background:dc[d]+'15',position:'relative'}:{position:'relative'}}
+                  onClick={()=>onDifficultyChange(d)}
+                >
+                  <span style={{
+                    display:'inline-flex',alignItems:'center',justifyContent:'center',
+                    width:18,height:18,borderRadius:5,
+                    background:active?dc[d]:'transparent',
+                    border:`1.5px solid ${active?dc[d]:'var(--border2)'}`,
+                    color:'#fff',fontSize:11,fontWeight:900,
+                    marginRight:8,transition:'all 0.2s'
+                  }}>{active?'✓':''}</span>
+                  {d}
+                  <span className="diff-count">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+          {noneSelected && (
+            <p style={{fontSize:12,color:'var(--red)',marginTop:12,fontWeight:600}}>
+              ⚠ Pick at least one topic to start.
+            </p>
+          )}
         </div>
         <div style={{marginBottom:24,animation:'fadeInUp 0.5s ease 0.25s both'}}>
           <h2 style={{fontSize:13,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',color:'var(--text3)',marginBottom:12}}>Game Mode</h2>
@@ -1898,7 +1968,14 @@ function PlayScreen({onStart, difficulty, onDifficultyChange, scenarioCount, gam
           </div>
         </div>
         <div className="scoring-note"><span className="note-icon">*</span><span><strong>Scoring:</strong> Base points &times; difficulty multiplier. <strong>Beginner 1x &bull; Intermediate 1.25x &bull; Advanced 1.5x &bull; Expert 2x</strong>. Perfect Call on Expert = 200 pts! Charts use real Yahoo Finance data, industry-standard indicators (RSI 14, MACD 12/26/9, SMA 50/200).</span></div>
-        <button className="start-btn" onClick={onStart}>Start Game: {scenarioCount} Scenarios <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        <button
+          className="start-btn"
+          onClick={onStart}
+          disabled={noneSelected || scenarioCount===0}
+          style={(noneSelected || scenarioCount===0)?{opacity:0.4,cursor:'not-allowed'}:{}}
+        >
+          {allSelected ? 'Start Mega Flashcard' : 'Start Game'}: {scenarioCount} Scenario{scenarioCount===1?'':'s'} <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
         <p className="play-footer">Real Yahoo Finance data | Industry-standard indicators | 50 scenarios from Beginner to Expert</p>
       </div>
     </div>
@@ -3140,18 +3217,34 @@ function AppInner() {
   const [answers,setAnswers]=useState([]);
   const [lastResult,setLastResult]=useState(null);
   const [gameMode,setGameMode]=useState(localStorage.getItem('mm_game_mode')||'prediction');
-  const [difficulty,setDifficulty]=useState(localStorage.getItem('mm_difficulty')||'All');
+  const ALL_DIFFS = ['Beginner','Intermediate','Advanced','Expert'];
+  const [difficulties,setDifficulties]=useState(()=>{
+    try {
+      const stored = localStorage.getItem('mm_difficulties');
+      if(stored) { const arr = JSON.parse(stored); if(Array.isArray(arr) && arr.length) return arr; }
+      // Migrate from old single-string key
+      const old = localStorage.getItem('mm_difficulty');
+      if(old && old !== 'All' && ALL_DIFFS.includes(old)) return [old];
+    } catch(e){}
+    return [...ALL_DIFFS]; // default: all topics
+  });
   const [newBadgeQueue,setNewBadgeQueue]=useState([]);
   const [soundOn,setSoundOn]=useState(SoundSystem.enabled);
 
   const filteredScenarios = useMemo(()=>{
-    if(difficulty==='All') return scenarios;
-    return scenarios.filter(s=>s.difficulty===difficulty);
-  },[difficulty]);
+    if(!difficulties.length) return [];
+    if(difficulties.length === ALL_DIFFS.length) return scenarios;
+    return scenarios.filter(s=>difficulties.includes(s.difficulty));
+  },[difficulties]);
 
   const handleDifficultyChange = (d) => {
-    setDifficulty(d);
-    localStorage.setItem('mm_difficulty', d);
+    let next;
+    if(d === '__all__') next = [...ALL_DIFFS];
+    else if(d === '__none__') next = [];
+    else if(difficulties.includes(d)) next = difficulties.filter(x=>x!==d);
+    else next = [...difficulties, d];
+    setDifficulties(next);
+    try { localStorage.setItem('mm_difficulties', JSON.stringify(next)); } catch(e){}
   };
 
   const handleModeChange = (mode) => {
@@ -3160,6 +3253,7 @@ function AppInner() {
   };
 
   const handleStartGame = () => {
+    if(!filteredScenarios.length) return;
     // Resume from first incomplete scenario within filtered set
     const startIdx = user ? getNextScenarioIndex(user.uid, filteredScenarios) : 0;
     setIdx(startIdx);
@@ -3236,7 +3330,7 @@ function AppInner() {
       if(gameState==='playing') return <GameScreen scenario={filteredScenarios[idx]} scenarioNum={idx+1} totalScenarios={filteredScenarios.length} score={totalScore} onAnswer={handleAnswer} gameMode={gameMode} onBack={handlePrevScenario} onHome={handleBackToHome} canGoBack={idx>0}/>;
       if(gameState==='result' && lastResult) return <ResultScreen result={lastResult} scenarioNum={idx+1} totalScenarios={filteredScenarios.length} onNext={handleNext}/>;
       if(gameState==='summary') return <SummaryScreen answers={answers} totalScore={totalScore} onRestart={handleStartGame} onHome={()=>setActiveTab('home')}/>;
-      return <PlayScreen onStart={handleStartGame} difficulty={difficulty} onDifficultyChange={handleDifficultyChange} scenarioCount={filteredScenarios.length} gameMode={gameMode} onModeChange={handleModeChange}/>;
+      return <PlayScreen onStart={handleStartGame} difficulties={difficulties} onDifficultyChange={handleDifficultyChange} scenarioCount={filteredScenarios.length} gameMode={gameMode} onModeChange={handleModeChange}/>;
     }
     return <HomeScreen onPlay={()=>setActiveTab('play')}/>;
   };
